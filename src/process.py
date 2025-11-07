@@ -42,7 +42,28 @@ def sort_by_date(input_consumer_register: str, sort_order: str = "True") -> Unio
         sort_order_bool = True
     else:
         return "Не задан порядок сортировки"
-
+    json_input_register: str = input_consumer_register.replace("'", '"')
+    consumer_register = json.loads(json_input_register)
+    valid_date_register = []
+    if not consumer_register:
+        return "Клиентская ведомость пуста"
+    for consumer in consumer_register:
+        if consumer not in consumer_register:
+            return "Клиентская ведомость пуста"
+        elif consumer.get("date") is None:
+            continue
+        elif re.match(r"^\d{4}-\d{2}-\d{2}", consumer.get("date")):
+            try:
+                datetime.strptime(consumer.get("date")[:10], "%Y-%m-%d").date()
+            except (ValueError, TypeError):
+                continue
+            valid_date_register.append(consumer)
+    sorted_consumer_register = sorted(
+        valid_date_register,
+        key=lambda idx: datetime.strptime(idx.get("date")[:10], "%Y-%m-%d").date(),
+        reverse=sort_order_bool,
+    )
+    return sorted_consumer_register
 
 
 if __name__ == "__main__":
