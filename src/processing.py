@@ -1,49 +1,58 @@
 import json
 import re
 from datetime import datetime
-from typing import Any
+from typing import List
 
 
-def filter_by_state(input_customer_list: str, state: str = "EXECUTED") -> Any:
+def filter_by_state(input_customer_list: str, state: str = "EXECUTED") -> List:
     """
     Функция возвращает новый список словарей, содержащий только те словари,
     у которых ключ state соответствует указанному значению.
     """
 
-    json_input_list: str = input_customer_list.replace("'", '"')
-    customer_list = json.loads(json_input_list)
-    filtered_customer_list: list = [{}]
-    if not customer_list:
-        return "Клиентская ведомость пуста"
-    for customer in customer_list:
-        if customer not in customer_list:
-            return "Клиентская ведомость пуста"
-        elif customer.get("state") not in ["EXECUTED", "CANCELED"]:
-            continue
-        elif customer.get("state") in ["EXECUTED", "CANCELED"]:
-            filtered_customer_list = list(filter(lambda key: key["state"] == state, customer_list))
-        else:
-            return "Ни одна из позиций не удовлетворяет запросу"
-    if not filtered_customer_list:
-        return "Ни одна из позиций не удовлетворяет запросу"
+    if state not in ["EXECUTED", "CANCELED", ""]:
+        raise ValueError("Не задан критерий фильтрации")
+    if state == "":
+        state = "EXECUTED"
+    if isinstance(input_customer_list, str):
+        try:
+            input_customer_list = json.loads(input_customer_list)
+        except json.JSONDecodeError:
+            try:
+                json_input_list: str = input_customer_list.replace("'", '"')
+                input_customer_list = json.loads(json_input_list)
+            except json.JSONDecodeError as error_info:
+                raise ValueError(f"Некорректный формат данных: {error_info}")
+    if not isinstance(input_customer_list, list):
+        raise TypeError("Клиентский список не задан")
+    filtered_customer_list = list(filter(lambda customer: customer.get("state") == state, input_customer_list))
     return filtered_customer_list
 
 
-def sort_by_date(input_consumer_statement: str, sort_order: bool | None = True) -> Any:
+def sort_by_date(input_consumer_statement: str, sort_order: bool | None = True) -> List:
     """
     Функция возвращает новый список словарей, отсортированный по дате (date).
     """
 
     if not isinstance(sort_order, bool):
-        return "Не задан порядок сортировки"
-    json_input_statement: str = input_consumer_statement.replace("'", '"')
-    consumer_statement = json.loads(json_input_statement)
+        raise TypeError("Не задан порядок сортировки")
+    if isinstance(input_consumer_statement, str):
+        try:
+            input_consumer_statement = json.loads(input_consumer_statement)
+        except json.JSONDecodeError:
+            try:
+                json_input_statement: str = input_consumer_statement.replace("'", '"')
+                input_consumer_statement = json.loads(json_input_statement)
+            except json.JSONDecodeError as error_mess:
+                raise ValueError(f"Некорректный формат данных: {error_mess}")
+    if not isinstance(input_consumer_statement, list):
+        raise TypeError("Клиентская ведомость не задана")
     valid_date_statement = []
-    if not consumer_statement:
-        return "Клиентская ведомость пуста"
-    for consumer in consumer_statement:
-        if consumer not in consumer_statement:
-            return "Клиентская ведомость пуста"
+    if not input_consumer_statement:
+        raise ValueError("Клиентская ведомость пуста")
+    for consumer in input_consumer_statement:
+        if consumer not in input_consumer_statement:
+            raise ValueError("Клиентская ведомость пуста")
         elif consumer.get("date") is None:
             continue
         elif re.match(r"^\d{4}-\d{2}-\d{2}", consumer.get("date")):
