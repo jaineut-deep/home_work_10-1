@@ -24,7 +24,14 @@ def transaction_descriptions(transactions_list: list[dict]) -> Iterator[str | ty
     Функция возвращает описание каждой операции по очереди из списка словарей транзакций.
     """
 
-
+    operation_generator = (transfer.get("description", KeyError) for transfer in transactions_list)
+    for transfer in operation_generator:
+        if transfer == "":
+            continue
+        try:
+            yield transfer
+        except KeyError:
+            continue
 
 
 def card_number_generator(start: int, stop: int) -> Iterator[str | type[ValueError]]:
