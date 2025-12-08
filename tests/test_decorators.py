@@ -38,7 +38,7 @@ def test_log_with_logging(capsys: CaptureFixture[str]) -> None:
         return [x * 2 for x in data]
 
     result = process_data(data=(1, 2, 3))
-    logged_file = open('log.txt', 'r')
+    logged_file = open("log.txt", "r")
     line_log = logged_file.readline()
     assert line_log == "process_data ok\n"
     assert result == [2, 4, 6]
