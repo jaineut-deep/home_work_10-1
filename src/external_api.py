@@ -1,6 +1,7 @@
 import os
-import requests
 from datetime import datetime
+
+import requests
 from dotenv import load_dotenv
 
 
@@ -14,23 +15,34 @@ def get_conversation(transaction: dict) -> float | str:
         raise Exception("Задано некорректное время") from error_info
     fact_amount = transaction.get("operationAmount", {}).get("amount")
     currency_code = transaction.get("operationAmount", {}).get("currency", {}).get("code", {})
-    def get_swap_response(currency: str, currency_amount: float, swap_date: str) -> dict | str:
+
+    def get_swap_response(currency: str, currency_amount: float, swap_date: str) -> float | str:
         load_dotenv("../.env")
         api_key = os.getenv("API_KEY")
         url = "https://api.apilayer.com/exchangerates_data/convert"
-        payload = {"to": "RUB", "from": currency, "amount": currency_amount, "date": swap_date}
+        payload: dict[str, str | float] = {"to": "RUB", "from": currency, "amount": currency_amount, "date": swap_date}
         headers = {"apikey": api_key}
         response = requests.get(url, headers=headers, params=payload)
         status_code = response.status_code
         result = response.json()
         if status_code == 200:
-            return result.get("result")
+            converted_result = result.get("result", "")
+            if isinstance(converted_result, float):
+                return converted_result
+            else:
+                return "Значение отсутствует."
         else:
             return f"Запрос не был успешным. Возможная причина: {response.reason}, {api_key}"
+
     if currency_code == "RUB":
-        fact_amount = float(fact_amount)
-    elif currency_code == "EUR":
-        fact_amount = get_swap_response(currency=currency_code, currency_amount=fact_amount, swap_date=actual_date[:10])
-    elif currency_code == "USD":
-        fact_amount = get_swap_response(currency=currency_code, currency_amount=fact_amount, swap_date=actual_date[:10])
-    return fact_amount
+        return float(fact_amount)
+    elif currency_code in ("EUR", "USD"):
+        fact_amount = get_swap_response(
+            currency=currency_code, currency_amount=fact_amount, swap_date=actual_date[:10]
+        )
+        if isinstance(fact_amount, float):
+            return fact_amount
+        else:
+            return "Значение отсутствует."
+    else:
+        return f"Неподдерживаемая валюта: {currency_code}"

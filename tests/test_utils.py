@@ -1,6 +1,7 @@
 import json
-import pytest
 from unittest.mock import mock_open, patch
+
+import pytest
 
 from src.utils import get_operations
 
@@ -9,7 +10,8 @@ from src.utils import get_operations
     "input_value, output_value",
     [
         (
-            json.dumps([
+            json.dumps(
+                [
                     {
                         "id": 863064926,
                         "state": "EXECUTED",
@@ -27,8 +29,8 @@ from src.utils import get_operations
                         "from": "Visa Platinum 1246377376343588",
                         "to": "Счет 14211924144426031657",
                     },
-            ])
-                ,
+                ]
+            ),
             [
                 {
                     "id": 863064926,
@@ -46,11 +48,13 @@ from src.utils import get_operations
                     "description": "Перевод организации",
                     "from": "Visa Platinum 1246377376343588",
                     "to": "Счет 14211924144426031657",
-                }
-            ]
-        ), (json.dumps([]), []), (None, [])])
-
-
+                },
+            ],
+        ),
+        (json.dumps([]), []),
+        (None, []),
+    ],
+)
 def test_file_operations(input_value: str, output_value: list) -> None:
     file_path = "dummy_file.json"
     mock_file_content = mock_open(read_data=input_value)
