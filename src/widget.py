@@ -15,10 +15,10 @@ def mask_account_card(account_card: str) -> str:
     if named_section.match(account_card[:-16]) and (account_card[-16:]).isdigit():
         card_number_int = int(account_card[-16:])
         if get_mask_card_number(card_number_int) == "Введено некорректное значение карты.":
-            mask_drafted_number = get_mask_card_number(card_number_int)
+            return "Введено некорректное значение карты."
         else:
             mask_drafted_number = account_card[:-16] + get_mask_card_number(card_number_int)
-        return mask_drafted_number
+            return mask_drafted_number
     elif named_section_rus.match(account_card[:-20]) and (account_card[-20:]).isdigit():
         card_number_int = int(account_card[-20:])
         if get_mask_account(card_number_int) == "Введено некорректное значение счета.":
