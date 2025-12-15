@@ -6,6 +6,11 @@ from pandas.errors import EmptyDataError
 
 
 def get_operations_data(file_path: str) -> list[Any]:
+    """Функция считывает финансовые операции из CSV-, XLS- и XLSX-файлов: принимает путь
+    к файлу и возвращает список словарей с транзакциями. Если считать данные невозможно —
+    возвращает пустой список.
+    """
+
     _, file_extension = os.path.splitext(file_path)
     if file_extension == ".csv":
         try:
