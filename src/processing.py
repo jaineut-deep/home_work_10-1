@@ -1,10 +1,10 @@
 import json
 import re
 from datetime import datetime
-from typing import List
+from typing import List, Union
 
 
-def filter_by_state(input_customer_list: list | str, state: str = "EXECUTED") -> List:
+def filter_by_state(input_customer_list: Union[list, str], state: str = "EXECUTED") -> List:
     """
     Функция возвращает новый список словарей, содержащий только те словари,
     у которых ключ state соответствует указанному значению.
@@ -23,9 +23,14 @@ def filter_by_state(input_customer_list: list | str, state: str = "EXECUTED") ->
                 input_customer_list = json.loads(json_input_list)
             except json.JSONDecodeError as error_info:
                 raise ValueError(f"Некорректный формат данных: {error_info}")
-    if not isinstance(input_customer_list, list):
+        if isinstance(input_customer_list, list):
+            filtered_customer_list = list(filter(lambda customer: customer.get("state") == state, input_customer_list))
+        else:
+            raise TypeError("Клиентский список не задан")
+    elif isinstance(input_customer_list, list):
+        filtered_customer_list = list(filter(lambda customer: customer.get("state") == state, input_customer_list))
+    else:
         raise TypeError("Клиентский список не задан")
-    filtered_customer_list = list(filter(lambda customer: customer.get("state") == state, input_customer_list))
     return filtered_customer_list
 
 

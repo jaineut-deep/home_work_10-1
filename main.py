@@ -1,15 +1,15 @@
 import os
 import sys
 
-from src.generators import filter_by_currency
-from src.utils import get_operations
-from src.transactions_import import get_operations_data
-from src.widget import mask_account_card, get_date
-from src.processing import filter_by_state, sort_by_date
 from src.filters import get_process_search, process_bank_operations
+from src.generators import filter_by_currency
+from src.processing import filter_by_state, sort_by_date
+from src.transactions_import import get_operations_data
+from src.utils import get_operations
+from src.widget import get_date, mask_account_card
 
 
-def main():
+def main() -> str:
     """Функция предоставляет пользовательский интерфейс и возвращает данные по операциям в соответствии
     с условиями выборки и сортировками указанными пользователем.
     """
@@ -19,7 +19,7 @@ def main():
     file_csv_path = strict_path + "/data/transactions.csv"
     file_xlsx_path = strict_path + "/data/transactions_excel.xlsx"
     greeting = """
-        Привет! Добро пожаловать в программу работы 
+        Привет! Добро пожаловать в программу работы
         с банковскими транзакциями."""
     print(greeting)
     while True:
@@ -49,7 +49,7 @@ def main():
     while True:
         print(
             """
-        Введите статус, по которому необходимо выполнить фильтрацию. 
+        Введите статус, по которому необходимо выполнить фильтрацию.
         Доступные для фильтровки статусы: EXECUTED, CANCELED, PENDING"""
         )
         user_tell_state = input()
@@ -133,9 +133,21 @@ def main():
         transfer_date = get_date(operation.get("date"))
         transfer_description = operation.get("description")
         transfer_to = mask_account_card(operation.get("to"))
-        amount = operation.get("operationAmount").get("amount") if operation.get("operationAmount") else operation.get("amount")
-        currency_code = operation.get("operationAmount", {}).get("currency", {}).get("code") if operation.get("operationAmount") else operation.get("currency_code")
-        transfer_from = ("\n" + mask_account_card(operation.get("from")) + " -> ") if isinstance(operation.get("from"), str) and operation.get("from").strip() else "\n"
+        amount = (
+            operation.get("operationAmount").get("amount")
+            if operation.get("operationAmount")
+            else operation.get("amount")
+        )
+        currency_code = (
+            operation.get("operationAmount", {}).get("currency", {}).get("code")
+            if operation.get("operationAmount")
+            else operation.get("currency_code")
+        )
+        transfer_from = (
+            ("\n" + mask_account_card(operation.get("from")) + " -> ")
+            if isinstance(operation.get("from"), str)
+            else "\n"
+        )
         print(f"{transfer_date} {transfer_description}{transfer_from}{transfer_to}\nСумма: {amount} {currency_code}")
     sys.exit(0)
 
