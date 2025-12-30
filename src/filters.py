@@ -10,9 +10,9 @@ def get_process_search(bank_data: list[dict], row_search: str) -> list[dict] | N
     """
 
     if row_search.isalpha() and len(row_search) >= 4:
-        pattern = re.compile(row_search)
+        pattern = re.compile(row_search, flags=re.IGNORECASE)
         filtered_bank_data: list[dict] = list(
-            filter(lambda transaction: re.search(pattern, transaction.get("description")), bank_data)
+            filter(lambda transaction: re.search(pattern, transaction.get("description", "")), bank_data)
         )
         return filtered_bank_data
     else:

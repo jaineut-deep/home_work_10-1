@@ -1,5 +1,6 @@
 import re
 from collections.abc import Iterator
+from typing import List
 
 
 def filter_by_currency(transactions: list[dict], currency: str) -> Iterator[dict]:
@@ -16,7 +17,8 @@ def filter_by_currency(transactions: list[dict], currency: str) -> Iterator[dict
             if (position.get("operationAmount", {}).get("currency", {}).get("code") == currency)
         )
     else:
-        filtered_generator = []
+        items: List[dict] = []
+        filtered_generator = (x for x in items)
     for position in filtered_generator:
         try:
             yield position

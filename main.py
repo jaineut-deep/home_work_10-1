@@ -9,7 +9,7 @@ from src.utils import get_operations
 from src.widget import get_date, mask_account_card
 
 
-def main() -> str:
+def main() -> str | None:
     """Функция предоставляет пользовательский интерфейс и возвращает данные по операциям в соответствии
     с условиями выборки и сортировками указанными пользователем.
     """
@@ -106,6 +106,9 @@ def main() -> str:
             print(f'Статус выбора "{word_describe}" недоступен')
             continue
     filtered_state_data = filter_by_state(transactions_data, state_process)
+    if not filtered_state_data:
+        print("Не найдено ни одной транзакции, подходящей под ваши условия фильтрации")
+        sys.exit(0)
     if date_mark_ascending == "по убыванию":
         date_mark_ascending = True
         filtered_date_data = sort_by_date(filtered_state_data, date_mark_ascending)
@@ -116,7 +119,7 @@ def main() -> str:
         filtered_date_data = filtered_state_data
     if only_rub_mark == "да":
         only_rub_mark = "RUB"
-        filtered_rub_data = filter_by_currency(filtered_date_data, only_rub_mark)
+        filtered_rub_data = [operation for operation in filter_by_currency(filtered_date_data, only_rub_mark)]
     else:
         filtered_rub_data = filtered_date_data
     if word_describe_search:
@@ -125,16 +128,17 @@ def main() -> str:
         filtered_search_data = filtered_rub_data
     if (filtered_search_data == []) or (filtered_search_data is None):
         print("Не найдено ни одной транзакции, подходящей под ваши условия фильтрации")
-    categories_list = []
+        sys.exit(0)
+    categories_list: list = []
     transactions_est = process_bank_operations(filtered_search_data, categories_list)
     print("Распечатываю итоговый список транзакций...")
     print(f"Всего банковских операций в выборке: {sum(transactions_est.values())}")
     for operation in filtered_search_data:
-        transfer_date = get_date(operation.get("date"))
+        transfer_date = get_date(operation.get("date", ""))
         transfer_description = operation.get("description")
-        transfer_to = mask_account_card(operation.get("to"))
+        transfer_to = mask_account_card(operation.get("to", ""))
         amount = (
-            operation.get("operationAmount").get("amount")
+            operation.get("operationAmount", {}).get("amount")
             if operation.get("operationAmount")
             else operation.get("amount")
         )
@@ -144,7 +148,7 @@ def main() -> str:
             else operation.get("currency_code")
         )
         transfer_from = (
-            ("\n" + mask_account_card(operation.get("from")) + " -> ")
+            ("\n" + mask_account_card(operation.get("from", "")) + " -> ")
             if isinstance(operation.get("from"), str)
             else "\n"
         )
