@@ -1,8 +1,6 @@
 import re
 from collections import Counter
 
-from src.generators import transaction_descriptions
-
 
 def get_process_search(bank_data: list[dict], row_search: str) -> list[dict] | None:
     """
@@ -25,10 +23,6 @@ def process_bank_operations(transactions_data: list[dict], categories_names: lis
     это количество операций в каждой категории.
     """
 
-    for operation in transaction_descriptions(transactions_data):
-        if operation and operation is not KeyError:
-            categories_names.append(operation)
-        else:
-            pass
+    categories_names.extend([x.get("description", "") for x in transactions_data if x.get("description") is not None])
     operations_quantity = dict(Counter(categories_names))
     return operations_quantity
