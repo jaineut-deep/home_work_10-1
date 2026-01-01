@@ -10,17 +10,17 @@ def mask_account_card(account_card: str) -> str:
     в зависимости от ввода.
     """
 
-    named_section = re.compile(r"^\b[a-zA-Z]{2,}\s(?!\s)([a-zA-Z]{2,}\b\s)?$")
-    named_section_rus = re.compile(r"^\b[а-яА-Я]{4}\b\s$")
+    named_section = re.compile(r"^\b[a-zA-ZА-Я]{3,}\s(?!\s)([a-zA-Z]{2,}\b\s)?$")
+    named_section_rus = re.compile(r"Счет ")
     if named_section.match(account_card[:-16]) and (account_card[-16:]).isdigit():
-        card_number_int = int(account_card[-16:])
+        card_number_int = account_card[-16:]
         if get_mask_card_number(card_number_int) == "Введено некорректное значение карты.":
             return "Введено некорректное значение карты."
         else:
             mask_drafted_number = account_card[:-16] + get_mask_card_number(card_number_int)
             return mask_drafted_number
     elif named_section_rus.match(account_card[:-20]) and (account_card[-20:]).isdigit():
-        card_number_int = int(account_card[-20:])
+        card_number_int = account_card[-20:]
         if get_mask_account(card_number_int) == "Введено некорректное значение счета.":
             mask_drafted_number = get_mask_account(card_number_int)
         else:
@@ -46,8 +46,3 @@ def get_date(unformatted_date: str) -> str:
         return formatted_date[0:10]
     else:
         return "Неверный формат даты."
-
-
-if __name__ == "__main__":
-    print(mask_account_card(input()))
-    print(get_date(input()))

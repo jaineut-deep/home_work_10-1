@@ -1,5 +1,6 @@
 import re
 from collections.abc import Iterator
+from typing import List
 
 
 def filter_by_currency(transactions: list[dict], currency: str) -> Iterator[dict]:
@@ -7,11 +8,17 @@ def filter_by_currency(transactions: list[dict], currency: str) -> Iterator[dict
     где валюта операции соответствует заданной.
     """
 
-    filtered_generator = (
-        position
-        for position in transactions
-        if (position.get("operationAmount", {}).get("currency", {}).get("code") == currency)
-    )
+    if isinstance(transactions[0].get("currency_code"), str):
+        filtered_generator = (position for position in transactions if (position.get("currency_code") == currency))
+    elif isinstance(transactions[0].get("operationAmount", {}).get("currency").get("code"), str):
+        filtered_generator = (
+            position
+            for position in transactions
+            if (position.get("operationAmount", {}).get("currency", {}).get("code") == currency)
+        )
+    else:
+        items: List[dict] = []
+        filtered_generator = (x for x in items)
     for position in filtered_generator:
         try:
             yield position

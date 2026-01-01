@@ -2,14 +2,15 @@ import json
 import logging
 import os
 
-origin_dir = os.path.join(os.path.dirname(os.path.dirname(__file__)), "logs")
-path_logfile = os.path.join(origin_dir, "module_utils.log")
+origin_dir = os.path.dirname(os.path.dirname(__file__))
+path_logfile = origin_dir + "/logs/module_utils.log"
 utils_logger = logging.getLogger(__name__)
-file_handler = logging.FileHandler(path_logfile, mode="w")
-file_formatter = logging.Formatter("%(asctime)s - %(module)s - %(levelname)s - %(message)s")
-file_handler.setFormatter(file_formatter)
-utils_logger.addHandler(file_handler)
-utils_logger.setLevel(logging.DEBUG)
+if not utils_logger.handlers:
+    file_handler = logging.FileHandler(path_logfile, mode="w")
+    file_formatter = logging.Formatter("%(asctime)s - %(module)s - %(levelname)s - %(message)s")
+    file_handler.setFormatter(file_formatter)
+    utils_logger.addHandler(file_handler)
+    utils_logger.setLevel(logging.DEBUG)
 
 
 def get_operations(file_path: str) -> list | str:
