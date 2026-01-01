@@ -23,6 +23,6 @@ def process_bank_operations(transactions_data: list[dict], categories_names: lis
     это количество операций в каждой категории.
     """
 
-    categories_names.extend([x.get("description", "") for x in transactions_data if x.get("description") is not None])
+    categories_names = [x.get("description", "") for x in transactions_data if x.get("description") is not None]
     operations_quantity = dict(Counter(categories_names))
     return operations_quantity
